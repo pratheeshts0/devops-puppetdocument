@@ -1,0 +1,61 @@
+class apache {
+ 
+
+    package { 'apache2':
+    ensure => installed,
+}
+
+service { 'apache2':
+
+       ensure => 'running',
+       hasstatus => 'true',
+       hasrestart => 'true',
+}
+}
+
+class mysite {
+      
+file { '/etc/apache2/sites-available/mysite_apache.conf':
+       
+        ensure  => present,
+        source  => 'puppet:///files/mysite_apache.conf',
+        owner   => 'root',
+        group   => 'root',
+        mode    => '777',
+
+}
+}
+
+class dir
+{
+
+file { '/var/www/mysite':
+
+      ensure => directory,
+}
+
+}
+class index
+{   
+file { '/var/www/mysite/index.html':
+  
+        ensure  => present,
+        source  => 'puppet:///files/index.html',
+        owner   => 'root',
+        group   => 'root',
+        mode    => '777',
+
+
+
+}
+}
+node 'puppetagent2.com'
+
+{
+
+include  apache
+include mysite
+include dir
+include index
+}
+
