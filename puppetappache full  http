@@ -1,30 +1,61 @@
+
 class apache {
  
 
     package { 'apache2':
     ensure => installed,
 }
+}
+
+class apache2
+{
 
 service { 'apache2':
 
        ensure => 'running',
        hasstatus => 'true',
        hasrestart => 'true',
-}
-}
 
+}
+}
 class mysite {
       
 file { '/etc/apache2/sites-available/mysite_apache.conf':
        
         ensure  => present,
+        
         source  => 'puppet:///files/mysite_apache.conf',
         owner   => 'root',
         group   => 'root',
         mode    => '777',
+}
+
+exec { 'default1':
+ 
+command => 'a2dissite 000-default.conf',
+path => '/bin:/sbin:/usr/bin:/usr/sbin',
+
+require => Class['apache'],
+
+notify => Service['apache2'],
 
 }
+exec { 'default2':
+
+command => 'a2ensite mysite_apache.conf',
+
+path => '/bin:/sbin:/usr/bin:/usr/sbin',
+
+require => Class['apache'],
+
+notify => Service['apache2'],
+
 }
+
+}
+
+
+
 
 class dir
 {
@@ -35,6 +66,7 @@ file { '/var/www/mysite':
 }
 
 }
+
 class index
 {   
 file { '/var/www/mysite/index.html':
@@ -49,11 +81,27 @@ file { '/var/www/mysite/index.html':
 
 }
 }
+
+
+
+
 node 'puppetagent2.com'
 
 {
 
 include  apache
+include apache2
+include mysite
+
+include dir
+include index
+}
+
+node 'puppetagent1.com'
+
+{
+include  apache
+include apache2
 include mysite
 include dir
 include index
